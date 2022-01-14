@@ -1,0 +1,5 @@
+name: Tntrun
+version: '${project.version}'
+main: eu.mineoase.tntrun.TNTRun
+api-version: 1.18
+website: http://mineoase.eu
