@@ -14,3 +14,5 @@ commands:
     description: gives PLayer spleef Shovel
   nohit:
     description: no Hit item
+  c4:
+    description: keine ahnugn

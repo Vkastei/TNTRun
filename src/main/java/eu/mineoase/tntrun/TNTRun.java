@@ -1,9 +1,6 @@
 package eu.mineoase.tntrun;
 
-import eu.mineoase.tntrun.items.JumpBoostPot;
-import eu.mineoase.tntrun.items.MineField;
-import eu.mineoase.tntrun.items.SpleefShovel;
-import eu.mineoase.tntrun.items.NoHit;
+import eu.mineoase.tntrun.items.*;
 import eu.mineoase.tntrun.listener.TNTRunListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,6 +27,7 @@ public class TNTRun extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MineField(), this);
         Bukkit.getPluginManager().registerEvents(new SpleefShovel(), this);
         Bukkit.getPluginManager().registerEvents(new NoHit(), this);
+        Bukkit.getPluginManager().registerEvents(new C4Item(), this);
     }
 
     @Override
@@ -72,6 +70,9 @@ public class TNTRun extends JavaPlugin {
             p.getInventory().addItem(SpleefShovel.shovel());
         }if(command.getName().equalsIgnoreCase("nohit")){
             p.getInventory().addItem(NoHit.noHit());
+        }if(command.getName().equalsIgnoreCase("c4")){
+            p.getInventory().addItem(C4Item.c4());
+            p.getInventory().addItem(C4Item.lever());
         }
         return true;
 
