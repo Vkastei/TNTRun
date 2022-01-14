@@ -3,3 +3,14 @@ version: '${project.version}'
 main: eu.mineoase.tntrun.TNTRun
 api-version: 1.18
 website: http://mineoase.eu
+commands:
+  tntrun:
+    description: test
+  jumpboost:
+    description: gives Player Jump Boost Potion 8 Seconds, Tier 2
+  minefield:
+    description: gives PLayer mineField Item
+  spleef:
+    description: gives PLayer spleef Shovel
+  nohit:
+    description: no Hit item
