@@ -3,26 +3,30 @@ package eu.mineoase.tntrun.items;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
+
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class C4Item implements Listener {
-    public static int c4Price = 1000;
-    public static boolean c4On = false;
-    public static Location c4Location;
+    public static boolean c4Bool = false;
+
+    public static int c4Count = 0;
+
+    public static int amount = 1;
+    public static Location c4loc;
     public static ItemStack c4(){
         ItemStack c4 = new ItemStack(Material.REDSTONE_TORCH);
+
         ItemMeta c4Meta = c4.getItemMeta();
         c4Meta.setDisplayName("C4");
         c4.setItemMeta(c4Meta);
-
         return c4;
     }
     public static ItemStack lever(){
@@ -30,42 +34,75 @@ public class C4Item implements Listener {
         ItemMeta leverMeta = lever.getItemMeta();
         leverMeta.setDisplayName("Fernzünder");
         lever.setItemMeta(leverMeta);
-
         return lever;
     }
     @EventHandler
-    public void c4BlockEvent(BlockPlaceEvent e1){
-        if(e1.getBlock().getType() == Material.REDSTONE_TORCH){
-            Location loc1 = e1.getBlock().getLocation();
-            c4Location = loc1;
+    public void onC4Place(BlockPlaceEvent e){
+        if(e.getItemInHand().getItemMeta().getDisplayName().equalsIgnoreCase("C4")){
+            if(c4Count < 1){
+                c4Count = c4Count + 1;
+                c4Bool = true;
+                c4loc = e.getBlock().getLocation();
+            }else{
+                e.getPlayer().sendMessage("Du hast bereits C4 platziert ");
+                e.setCancelled(true);
+            }
+
+        }
+        if(e.getItemInHand().getItemMeta().getDisplayName().equalsIgnoreCase("Fernzünder")){
+            e.setCancelled(true);
         }
     }
     @EventHandler
-    public void c4PlaceEvent(PlayerInteractEvent e){
-        Player p = (Player) e.getPlayer();
-        if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
-            if(p.getInventory().getItemInMainHand().getType() == Material.REDSTONE_TORCH || p.getInventory().getItemInMainHand() == c4()){
-                c4On = true;
-            }
-        }
+    public void leverClick(PlayerInteractEvent e){
+        Player p = e.getPlayer();
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR){
-            if(p.getInventory().getItemInMainHand().getType() == Material.LEVER || p.getInventory().getItemInMainHand() == lever()){
-                if(c4On){
-                    c4Location.getBlock();
-                    for(int x = -1; x < 1; x++){
-                        for(int z = -1; z < 1; z++){
-                            e.getClickedBlock().getLocation().subtract(x, 0, z).getBlock().setType(Material.AIR);
-                            e.getClickedBlock().getLocation().subtract(x, 1, z).getBlock().setType(Material.AIR);
-                            e.getClickedBlock().getLocation().subtract(x, 2, z).getBlock().setType(Material.AIR);
-                            e.getPlayer().getWorld().createExplosion(e.getClickedBlock().getLocation(), 0, false);
-                        }
-                    }
+
+            if(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("Fernzünder")){
+                if(c4Bool){
+                    c4loc.getBlock().setType(Material.AIR);
+                    c4Count = 0;
+                    c4Bool = false;
+                    p.getWorld().createExplosion(c4loc,0, false);
+                    c4Explode();
+
+                }else{
+                    p.sendMessage("Du hast noch kein C4 platziert");
                 }
-            }else{
-                    p.sendMessage(ChatColor.RED + "Du hast noch kein C4 plaziert");
             }
         }
+    }
 
+    @EventHandler
+    public void PlayerTouchC4(PlayerMoveEvent e){
+        Player p = (Player) e.getPlayer();
+        if(c4loc != null && c4Bool){
+            if(p.getLocation().distanceSquared(c4loc) < 1){
+                p.getWorld().createExplosion(c4loc, 0, false);
+                c4Explode();
+                c4loc.getBlock().setType(Material.AIR);
+                c4Count = 0;
+                c4Bool = false;
+            }
+
+        }
+    }
+
+    @EventHandler
+    public void torchDrop(BlockBreakEvent e){
+        e.getBlock().getDrops().clear();
+    }
+    public void c4Explode(){
+        c4loc.getBlock().getLocation().subtract(0, 1, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(-1, 1, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(1, 1, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(0, 1, -1).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(0, 1, 1).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(0, 2, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(-1, 2, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(1, 2, 0).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(0, 2, -1).getBlock().setType(Material.AIR);
+        c4loc.getBlock().getLocation().subtract(0, 2, 1).getBlock().setType(Material.AIR);
 
     }
 

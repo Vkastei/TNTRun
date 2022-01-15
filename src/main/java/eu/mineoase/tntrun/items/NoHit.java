@@ -26,13 +26,15 @@ public class NoHit implements Listener {
         return noHit;
     }
     @EventHandler
-    public void noHitRightClick(PlayerInteractEvent e){
-        if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK){
-            if(e.getPlayer().getInventory().getItemInMainHand().equals("no Hit") || e.getPlayer().getInventory().getItemInMainHand().getType() == Material.BARRIER){
+    public void noHitRightClick(PlayerInteractEvent e) {
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (e.getPlayer().getInventory().getItemInMainHand().equals("no Hit") || e.getPlayer().getInventory().getItemInMainHand().getType() == Material.BARRIER) {
                 noHitBool = true;
             }
         }
     }
+
+    /*
     @EventHandler
     public void PlayerDamage(EntityDamageEvent e1){
         Player p = (Player) e1.getEntity();
@@ -42,6 +44,8 @@ public class NoHit implements Listener {
             e1.setCancelled(false);
         }
     }
+
+     */
     @EventHandler
     public void PlayerKnockback(PlayerVelocityEvent e2){
         if(noHitBool){
