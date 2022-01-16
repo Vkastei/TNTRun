@@ -3,6 +3,7 @@ version: '${project.version}'
 main: eu.mineoase.tntrun.TNTRun
 api-version: 1.18
 website: http://mineoase.eu
+softdepend: [Multiverse-Core]
 commands:
   tntrun:
     description: test
@@ -16,3 +17,7 @@ commands:
     description: no Hit item
   c4:
     description: keine ahnugn
+  start:
+    description: starts lobby
+  player:
+    description: keine ahnung

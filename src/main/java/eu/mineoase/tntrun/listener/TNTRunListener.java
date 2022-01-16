@@ -1,37 +1,50 @@
 package eu.mineoase.tntrun.listener;
 
-import eu.mineoase.tntrun.items.JumpBoostPot;
+import eu.mineoase.tntrun.LobbyPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.*;
 import eu.mineoase.tntrun.TNTRun;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import static eu.mineoase.tntrun.TNTRun.TNTBool;
+import java.util.Collection;
+
 
 
 public class TNTRunListener implements Listener {
     private static TNTRun main = TNTRun.getInstance();
-    public static int i = TNTRun.i;
+    public static boolean startRound = false;
+    public static boolean isRunning = false;
 
+    public static int i = TNTRun.i;
     @EventHandler
-    public void test(PlayerMoveEvent e){
+    public void PlayerJoin(PlayerTeleportEvent e){
+        if(LobbyPhase.TNTBool){
+            new BukkitRunnable()
+            {
+                @Override
+                public void run() {
+                    startRound = true;
+
+
+                }
+
+            }.runTaskLater(main, 60);
+        }
+    }
+    @EventHandler
+    public void moveEvent(PlayerMoveEvent e){
         Player p = e.getPlayer();
 
         Location blockBelow = p.getLocation().subtract(0, 1, 0);
 
-        if(TNTBool){
-            new BukkitRunnable()
-            {
+        if(LobbyPhase.TNTBool && startRound){
+            isRunning = true;
+            new BukkitRunnable(){
                 @Override
                 public void run() {
                     if(blockBelow.getBlock().getType() == Material.GRAVEL || blockBelow.getBlock().getType() == Material.SAND) {
@@ -49,7 +62,6 @@ public class TNTRunListener implements Listener {
             }.runTaskLater(main, TNTRun.delay);
 
         }
-
 
 
     }
