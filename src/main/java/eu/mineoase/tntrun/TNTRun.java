@@ -1,33 +1,57 @@
 package eu.mineoase.tntrun;
 
+import eu.mineoase.tntrun.commands.KickAllCommand;
 import eu.mineoase.tntrun.items.*;
-import eu.mineoase.tntrun.listener.SpectatorMode;
+import eu.mineoase.tntrun.listener.LobbyPhaseListener;
+import eu.mineoase.tntrun.listener.PlayerQuitListener;
+import eu.mineoase.tntrun.listener.SpectatorModeListener;
 import eu.mineoase.tntrun.listener.TNTRunListener;
+import eu.mineoase.tntrun.util.WorldReset;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.A;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class TNTRun extends JavaPlugin {
+
+    private ArrayList<Player> PlayerList;
 
 
     public static TNTRun instance;
     public static boolean lobbyStart = false;
     public static int i = 10;
-    private ArrayList<Player> players;
+    private ArrayList<Player> players = new ArrayList<>();
     public static int delay;
+    public static int maxPlayers;
+    public static String gameWorld;
+
+    private ArrayList<Block> placed ;
+    private HashMap<Block, Material> broken;
+
+
     @Override
     public void onEnable() {
-        players = new ArrayList<>();
+        World world = Bukkit.getWorld("world");
+        world.setAutoSave(true);
+
+        placed = new ArrayList<>();
+        broken = new HashMap<>();
+
+        PlayerList = new ArrayList<>();
+
+        maxPlayers = getConfig().getInt("maxPlayers");
         delay = getConfig().getInt("delay");
+        gameWorld = getConfig().getString("gameWorld");
+
         instance = this;
+
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(new TNTRunListener(), this);
@@ -36,9 +60,14 @@ public class TNTRun extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SpleefShovel(), this);
         Bukkit.getPluginManager().registerEvents(new NoHit(), this);
         Bukkit.getPluginManager().registerEvents(new C4Item(), this);
-        Bukkit.getPluginManager().registerEvents(new LobbyPhase(), this);
-        Bukkit.getPluginManager().registerEvents(new SpectatorMode(), this);
-        LobbyPhase.playerCount = 0;
+        Bukkit.getPluginManager().registerEvents(new LobbyPhaseListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SpectatorModeListener(), this);
+        Bukkit.getPluginManager().registerEvents(new WorldReset(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        LobbyPhaseListener.playerCount = 0;
+
+        getCommand("kickall").setExecutor(new KickAllCommand());
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
     }
 
@@ -60,8 +89,6 @@ public class TNTRun extends JavaPlugin {
         if(command.getName().equalsIgnoreCase("start")){
             lobbyStart = true;
 
-            Location lobby = new Location(Bukkit.getWorld("game"), 226, 4, 48.5);
-            p.teleport(lobby);
         }
         if(command.getName().equalsIgnoreCase("jumpboost")){
             p.getInventory().addItem(JumpBoostPot.potion());
@@ -75,6 +102,7 @@ public class TNTRun extends JavaPlugin {
             p.getInventory().addItem(C4Item.c4());
             p.getInventory().addItem(C4Item.lever());
         }if(command.getName().equalsIgnoreCase("player")){
+
             p.sendMessage(String.valueOf(players));
         }
         return true;
@@ -84,8 +112,18 @@ public class TNTRun extends JavaPlugin {
         return instance;
     }
 
+    public ArrayList<Player> getPlayerList() {
+        return PlayerList;
+    }
+
+    public HashMap<Block, Material> getBroken() {
+        return broken;
+    }
+    public ArrayList<Block> getPlaced() {
+        return placed;
+    }
+
     public ArrayList<Player> getPlayers() {
         return players;
     }
-
 }
