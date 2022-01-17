@@ -21,3 +21,5 @@ commands:
     description: starts lobby
   player:
     description: keine ahnung
+  kickall:
+    description: kickall to hub
