@@ -1,6 +1,7 @@
 package eu.mineoase.tntrun.listener;
 
 import eu.mineoase.tntrun.TNTRun;
+import eu.mineoase.tntrun.shop.SpawnShop;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,13 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     public void PlayerQuit(PlayerQuitEvent e){
         Player p = e.getPlayer();
-        players = main.getPlayerList();
-        main.getPlayerList().remove(p);
+        players = main.getPlayers();
+        players.remove(p);
+        /*
+        if(TNTRunListener.startRound != true){
+            LobbyPhaseListener.playerCount--;
+        }
+
+         */
     }
 }

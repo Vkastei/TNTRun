@@ -14,7 +14,7 @@ public class KickAllCommand implements CommandExecutor {
 
         for(Player current : Bukkit.getOnlinePlayers()) {
             PlayerConnector.connect(current, "hub");
-            current.sendMessage("weg mit dir!");
+            current.sendMessage("weg mit dir");
         }
 
         return false;

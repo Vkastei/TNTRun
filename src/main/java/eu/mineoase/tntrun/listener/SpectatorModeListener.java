@@ -21,10 +21,11 @@ import java.util.HashMap;
 public class SpectatorModeListener implements Listener {
     private static TNTRun main = TNTRun.getInstance();
     public static boolean start = true;
-    public int seconds = 10;
+    public int seconds = 11;
 
     private ArrayList<Block> placed;
     private HashMap<Block, Material> broken;
+    private ArrayList<Player> players;
 
     public void onPlayerFall(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player){
@@ -36,12 +37,12 @@ public class SpectatorModeListener implements Listener {
     public void PlayerDeath(EntityDamageEvent e){
         placed = main.getPlaced();
         broken = main.getBroken();
-
+        players = main.getPlayers();
         if(e.getCause() == EntityDamageEvent.DamageCause.FALL){
             e.setCancelled(true);
         }
 
-        if(TNTRunListener.startRound && start){
+        if(TNTRunListener.startRound){
 
 
             if(e.getCause() == EntityDamageEvent.DamageCause.VOID) {
@@ -50,16 +51,14 @@ public class SpectatorModeListener implements Listener {
                 Player p = (Player) e.getEntity(); //player
 
                 p.setGameMode(GameMode.SPECTATOR);
-
-                main.getPlayerList().remove(p); //remove
+                players.remove(p); //remove
 
             }
 
 
 
-            if(main.getPlayerList().size() == 1){
-                Player winner = main.getPlayerList().get(0);
-
+            if(players.size() == 1){
+                Player winner = players.get(0);
 
 
                 int taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, new Runnable(){
@@ -69,27 +68,25 @@ public class SpectatorModeListener implements Listener {
                                         seconds--;
                                         switch (seconds) {
                                             case 10:
-                                            for(Player current : Bukkit.getOnlinePlayers()) {
-                                                current.sendTitle(ChatColor.RED + winner.getDisplayName()
-                                                        + ChatColor.WHITE + " hat das Spiel gewonnen!", "",
+
+                                                for(Player current : Bukkit.getOnlinePlayers()) {
+                                                    current.sendTitle(ChatColor.RED + winner.getDisplayName(), ChatColor.WHITE + " hat das Spiel gewonnen!",
                                                         10, 70, 20);
-                                                TNTRunListener.startRound = false;
-                                            }
+                                                }
                                                 start = false;
                                                 LobbyPhaseListener.start = true;
                                                 LobbyPhaseListener.playerCount = 0;
                                                 break;
                                             case 5: case 4: case 3: case 2:
-                                                Bukkit.broadcastMessage("Der Server stoppt in " + seconds + " Sekunden");
+                                                Bukkit.broadcastMessage(ChatColor.WHITE + "Der Server stoppt in " + ChatColor.GREEN + seconds + ChatColor.WHITE + " Sekunden");
                                                 break;
                                             case 1:
-                                                Bukkit.broadcastMessage("Der Server stoppt in " + seconds + " Sekunde");
+                                                Bukkit.broadcastMessage(ChatColor.WHITE + "Der Server stoppt in " + ChatColor.GREEN + seconds + ChatColor.WHITE + " Sekunde");
                                                 break;
                                             case 0:
 
                                                 for(Player current : Bukkit.getOnlinePlayers()) {
                                                     PlayerConnector.connect(current, "hub");
-
                                                 }
                                                 for (Block b : placed) {
                                                     b.setType(Material.AIR);
@@ -110,34 +107,7 @@ public class SpectatorModeListener implements Listener {
                                     }
                                 }, 0, 20);
 
-                 /*
-                for(Player p1 : Bukkit.getOnlinePlayers()){
-
-                    p1.sendTitle(ChatColor.RED + p.getDisplayName() + ChatColor.WHITE + " hat das Spiel gewonnen!", "",  10, 70, 20);
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            //Location lobby = new Location(Bukkit.getWorld(TNTRun.gameWorld), 226, 4, 48.5);
-                            //p1.teleport(lobby);
-                            start = false;
-                            LobbyPhaseListener.start = true;
-                            LobbyPhaseListener.playerCount = 0;
-
-                            PlayerConnector.connect(p1, "hub");
-                            WorldReset.rollback("world");
-
-                            Bukkit.reload();
-
-
-                        }
-                    }.sy(main, 10*20);
-
-
-
-                }
-
-                  */
-
+                
             }
         }
 

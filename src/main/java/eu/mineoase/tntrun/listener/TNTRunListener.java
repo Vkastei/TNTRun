@@ -1,5 +1,8 @@
 package eu.mineoase.tntrun.listener;
 
+import eu.mineoase.tntrun.util.PlayerConnector;
+import eu.mineoase.tntrun.util.PlayerLocation;
+import eu.mineoase.tntrun.util.WorldReset;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +17,7 @@ import eu.mineoase.tntrun.TNTRun;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -28,41 +32,47 @@ public class TNTRunListener implements Listener {
     private HashMap<Location, Material> changedBlocks;
     private HashMap<Block, Material> broken;
     private ArrayList<Player> players;
+    private ArrayList<Location> playerLocation;
+
     public static int i = TNTRun.i;
     @EventHandler
     public void PlayerJoin(PlayerTeleportEvent e){
+
         if(LobbyPhaseListener.TNTBool){
+
+
             new BukkitRunnable()
             {
                 @Override
                 public void run() {
-                    startRound = true;
 
+                    PlayerMove();
+                    startRound = true;
                 }
 
             }.runTaskLater(main, 60);
         }
     }
-    @EventHandler
-    public void PlayerMove(PlayerMoveEvent e){
 
+    public void PlayerMove(){
 
-        if(startRound){
+        broken = main.getBroken();
+        players = main.getPlayers();
+        playerLocation = main.getPlayerLocation();
 
-
-                    broken = main.getBroken();
-                    players = main.getPlayers();
-                    if(startRound){
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
+            @Override
+            public void run() {
+                if(startRound){
+                    for(Player p : new ArrayList<>(players)){
                         isRunning = true;
 
-                        Location plloc = e.getPlayer().getLocation();
+                        Location plloc = p.getLocation();
                         Location plufloc = plloc.clone().add(0, -1, 0);
-
 
                         int y = plufloc.getBlockY() + 1;
                         Block b1 = getBlockUnderPlayer(y - 1, plufloc);
-                        Block tnt = getBlockUnderPlayer(y - 2 , plufloc);
-
+                        Block tnt = getBlockUnderPlayer(y - 2, plufloc);
 
 
                         if (b1 != null && b1.getType() == Material.GRAVEL) {
@@ -77,12 +87,13 @@ public class TNTRunListener implements Listener {
                             destroyBlock(b1, tnt);
 
                         }
-
-
+                    }
                 }
 
+            }
+        }, 0, 1L);
 
-        }
+
     }
     public void destroyBlock(Block b1, Block tnt){
         new BukkitRunnable() {
@@ -92,10 +103,10 @@ public class TNTRunListener implements Listener {
                 b1.setType(Material.AIR);
                 tnt.setType(Material.AIR);
             }
-        }.runTaskLater(main, 6);
+        }.runTaskLater(main, TNTRun.delay);
     }
 
-    private static double PLAYER_BOUNDINGBOX_ADD = 0.5;
+    private static double PLAYER_BOUNDINGBOX_ADD = 0.3;
 
     private Block getBlockUnderPlayer(int y, Location location) {
         PlayerPosition loc = new PlayerPosition(location.getX(), y, location.getZ());

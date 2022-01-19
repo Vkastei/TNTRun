@@ -23,3 +23,5 @@ commands:
     description: keine ahnung
   kickall:
     description: kickall to hub
+  countdown:
+    description: sets countdown to null

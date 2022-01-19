@@ -1,3 +1,4 @@
+
 package eu.mineoase.tntrun;
 
 import eu.mineoase.tntrun.commands.KickAllCommand;
@@ -6,6 +7,8 @@ import eu.mineoase.tntrun.listener.LobbyPhaseListener;
 import eu.mineoase.tntrun.listener.PlayerQuitListener;
 import eu.mineoase.tntrun.listener.SpectatorModeListener;
 import eu.mineoase.tntrun.listener.TNTRunListener;
+import eu.mineoase.tntrun.shop.ShopGui;
+import eu.mineoase.tntrun.shop.SpawnShop;
 import eu.mineoase.tntrun.util.WorldReset;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,12 +17,12 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 public class TNTRun extends JavaPlugin {
@@ -28,32 +31,41 @@ public class TNTRun extends JavaPlugin {
 
 
     public static TNTRun instance;
+    public static SpawnShop spawnShop;
     public static boolean lobbyStart = false;
     public static int i = 10;
     private ArrayList<Player> players = new ArrayList<>();
     public static int delay;
     public static int maxPlayers;
+    public static int minPlayers;
     public static String gameWorld;
-
+    private ArrayList<Location> playerLocation;
     private ArrayList<Block> placed ;
     private HashMap<Block, Material> broken;
-
-
+    public static int joinX;
+    public static int joinY;
+    public static int joinZ;
     @Override
     public void onEnable() {
         World world = Bukkit.getWorld("world");
         world.setAutoSave(true);
 
+
         placed = new ArrayList<>();
         broken = new HashMap<>();
+        playerLocation = new ArrayList<>();
 
-        PlayerList = new ArrayList<>();
-
+        minPlayers = getConfig().getInt("minPlayers");
         maxPlayers = getConfig().getInt("maxPlayers");
         delay = getConfig().getInt("delay");
         gameWorld = getConfig().getString("gameWorld");
+        joinX = getConfig().getInt("JoinLocation.joinX");
+        joinY = getConfig().getInt("JoinLocation.joinY");
+        joinZ = getConfig().getInt("JoinLocation.joinZ");
 
         instance = this;
+
+
 
         getConfig().options().copyDefaults();
         saveDefaultConfig();
@@ -67,16 +79,23 @@ public class TNTRun extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SpectatorModeListener(), this);
         Bukkit.getPluginManager().registerEvents(new WorldReset(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ShopGui(), this);
+        Bukkit.getPluginManager().registerEvents(new SpawnShop(), this);
         LobbyPhaseListener.playerCount = 0;
 
         getCommand("kickall").setExecutor(new KickAllCommand());
+
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
     }
 
     @Override
     public void onDisable() {
-
+        for(Entity v : Bukkit.getWorld(gameWorld).getEntities()){
+            if(v.getType() == EntityType.VILLAGER){
+                v.remove();
+            }
+        }
 
     }
 
@@ -105,8 +124,10 @@ public class TNTRun extends JavaPlugin {
             p.getInventory().addItem(C4Item.c4());
             p.getInventory().addItem(C4Item.lever());
         }if(command.getName().equalsIgnoreCase("player")){
-
+            p.sendMessage(String.valueOf(playerLocation));
             p.sendMessage(String.valueOf(players));
+        }if(command.getName().equalsIgnoreCase("countdown")){
+            LobbyPhaseListener.seconds = 1;
         }
         return true;
 
@@ -128,5 +149,9 @@ public class TNTRun extends JavaPlugin {
 
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public ArrayList<Location> getPlayerLocation() {
+        return playerLocation;
     }
 }
