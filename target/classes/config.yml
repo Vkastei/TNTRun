@@ -1,8 +1,0 @@
-delay: 6
-minPlayers: 1
-maxPlayers: 16
-gameWorld: world
-JoinLocation:
-  joinX: 226
-  joinY: 4
-  joinZ: 48.5
