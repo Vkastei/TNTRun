@@ -55,14 +55,7 @@ public class TNTRun extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        /*
-        if (!setupEconomy() ) {
-            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        
-         */
+
 
         World world = Bukkit.getWorld("world");
         world.setAutoSave(true);

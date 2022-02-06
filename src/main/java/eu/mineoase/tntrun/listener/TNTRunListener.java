@@ -5,6 +5,8 @@ import eu.mineoase.tntrun.util.PlayerLocation;
 import eu.mineoase.tntrun.util.WorldReset;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,6 +38,14 @@ public class TNTRunListener implements Listener {
     public void PlayerJoin(PlayerTeleportEvent e){
 
         if(LobbyPhaseListener.TNTBool){
+            for(Player p : Bukkit.getOnlinePlayers()){
+                p.setGameMode(GameMode.SURVIVAL);
+            }
+            for(Entity v : Bukkit.getWorld("world").getEntities()){
+                if(v.getType() == EntityType.VILLAGER){
+                    v.remove();
+                }
+            }
             Bukkit.getServer().getWorld("world").getWorldBorder().setSize(70);
 
 
