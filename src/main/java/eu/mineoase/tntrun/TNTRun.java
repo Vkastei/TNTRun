@@ -62,6 +62,8 @@ public class TNTRun extends JavaPlugin {
         world.getWorldBorder().setSize(2000);
 
 
+
+
         if (!setupEconomy() ) {
             log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
@@ -102,6 +104,7 @@ public class TNTRun extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ShopGui(), this);
         Bukkit.getPluginManager().registerEvents(new SpawnShop(), this);
         Bukkit.getPluginManager().registerEvents(new PhaseMOTDListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ScoreboardListener(), this);
         LobbyPhaseListener.playerCount = 0;
 
         getCommand("kickall").setExecutor(new KickAllCommand());
@@ -114,13 +117,13 @@ public class TNTRun extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        for(Entity v : Bukkit.getWorld(gameWorld).getEntities()){
-            if(v.getType() == EntityType.VILLAGER){
-                v.remove();
-            }
+        for(Entity ent : Bukkit.getWorld(gameWorld).getEntities()){
+            ent.remove();
         }
         log.info(String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
-
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.getInventory().clear();
+        }
 
     }
 

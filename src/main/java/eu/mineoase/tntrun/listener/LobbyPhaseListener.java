@@ -32,13 +32,19 @@ public class LobbyPhaseListener implements Listener {
     public static int taskID;
     public static boolean startLobby = false;
     public static boolean motdBool = false;
+    public static boolean ShopSpawn = true;
     @EventHandler
     public void PlayerJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
 
+        p.getInventory().clear();
         p.setGameMode(GameMode.ADVENTURE);
-        new ShopGui();
-        new SpawnShop().spawn();
+
+        if(ShopSpawn){
+            new ShopGui();
+            new SpawnShop().spawn();
+            ShopSpawn = false;
+        }
         players = main.getPlayers();
         players.add(p);
         Location lobby = new Location(Bukkit.getWorld(TNTRun.gameWorld), joinX, joinY, joinZ);

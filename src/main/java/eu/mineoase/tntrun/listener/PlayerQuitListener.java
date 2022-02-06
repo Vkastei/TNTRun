@@ -17,11 +17,6 @@ public class PlayerQuitListener implements Listener {
         Player p = e.getPlayer();
         players = main.getPlayers();
         players.remove(p);
-        /*
-        if(TNTRunListener.startRound != true){
-            LobbyPhaseListener.playerCount--;
-        }
-
-         */
+        LobbyPhaseListener.playerCount--;
     }
 }
