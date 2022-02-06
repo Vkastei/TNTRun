@@ -30,6 +30,8 @@ public class LobbyPhaseListener implements Listener {
     public static int seconds = 90;
     public static int i = 10;
     public static int taskID;
+    public static boolean startLobby = false;
+    public static boolean motdBool = false;
     @EventHandler
     public void PlayerJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
@@ -44,58 +46,69 @@ public class LobbyPhaseListener implements Listener {
         SpectatorModeListener.start = true;
         playerCount++;
 
+        if(!TNTBool){
+            Bukkit.broadcastMessage(ChatColor.GREEN + e.getPlayer().getName() + ChatColor.WHITE + " ist der Lobby beigetreten" + ChatColor.GREEN + "(" + playerCount + "/" + maxPlayer + ")");
 
-        Bukkit.broadcastMessage(ChatColor.GREEN + e.getPlayer().getName() + ChatColor.WHITE + " ist der Lobby beigetreten" + ChatColor.GREEN + "(" + playerCount + "/" + maxPlayer + ")");
-        taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
-            @Override
-            public void run() {
-                if(playerCount >= minPlayer){
-                    seconds = seconds - 1;
-                    if(seconds >= 0){
-                        for(Player p : players){
-                            p.setLevel(seconds);
+        }
+        if(TNTBool){
+            p.setGameMode(GameMode.SPECTATOR);
+            p.teleport(new Location(Bukkit.getWorld("world"), 1.5, 85, 0.6));
+        }
+        if(startLobby && TNTBool != true){
+            startLobby = false;
+            taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
+                @Override
+                public void run() {
+                    if(playerCount >= minPlayer){
+                        seconds = seconds - 1;
+                        if(seconds >= 0){
+                            for(Player p : players){
+                                p.setLevel(seconds);
+                            }
+                        }if(seconds == 0 && playerCount >= minPlayer){
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if(i >= 1){
+                                        motdBool = true;
+                                        Bukkit.broadcastMessage("Runde beginnt in: " + ChatColor.GREEN + i);
+                                        i--;
+                                    }else{
+                                        this.cancel();
+                                        Bukkit.broadcastMessage("Die Runde beginnt jetzt...");
+                                        start = false;
+                                        startRound();
+                                        Bukkit.getScheduler().cancelTask(taskID);
+                                    }
+                                }
+                            }.runTaskTimer(main, 0, 20);
+                        }if(playerCount == maxPlayer){
+                            start = false;
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if(i >= 1){
+                                        Bukkit.broadcastMessage("Runde beginnt in: " + ChatColor.GREEN + i);
+                                        i--;
+                                    }else{
+                                        this.cancel();
+                                        Bukkit.broadcastMessage("Die Runde beginnt jetzt...");
+
+                                        startRound();
+                                        Bukkit.getScheduler().cancelTask(taskID);
+                                    }
+                                }
+                            }.runTaskTimer(main, 0, 20);
                         }
-                    }if(seconds == 0 && playerCount == minPlayer){
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                if(i >= 1){
-                                    Bukkit.broadcastMessage("Runde beginnt in: " + ChatColor.GREEN + i);
-                                    i--;
-                                }else{
-                                    this.cancel();
-                                    Bukkit.broadcastMessage("Die Runde beginnt jetzt...");
-                                    start = false;
-                                    startRound();
-                                    Bukkit.getScheduler().cancelTask(taskID);
-                                }
-                            }
-                        }.runTaskTimer(main, 0, 20);
-                    }if(playerCount == maxPlayer){
-                        start = false;
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                if(i >= 1){
-                                    Bukkit.broadcastMessage("Runde beginnt in: " + ChatColor.GREEN + i);
-                                    i--;
-                                }else{
-                                    this.cancel();
-                                    Bukkit.broadcastMessage("Die Runde beginnt jetzt...");
+                        if(playerCount > maxPlayer){
+                            playerCount = 0;
+                        }
+                    }
 
-                                    startRound();
-                                    Bukkit.getScheduler().cancelTask(taskID);
-                                }
-                            }
-                        }.runTaskTimer(main, 0, 20);
-                    }
-                    if(playerCount > maxPlayer){
-                        playerCount = 0;
-                    }
                 }
+            }, 0, 20);
 
-            }
-        }, 0, 20);
+        }
 
 
 

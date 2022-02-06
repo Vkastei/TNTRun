@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -98,6 +99,7 @@ public class SpectatorModeListener implements Listener {
                                                 broken = new HashMap<Block, Material>();
                                                 Bukkit.broadcastMessage("reset");
                                                 Bukkit.getWorld("world").save();
+
                                                 Bukkit.reload();
 
                                             default:
@@ -112,6 +114,7 @@ public class SpectatorModeListener implements Listener {
         }
 
     }
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){
         e.setDeathMessage("");

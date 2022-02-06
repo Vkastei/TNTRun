@@ -18,7 +18,7 @@ public class PoisonThrowPot {
         PotionMeta poisonMeta = (PotionMeta) poison.getItemMeta();
         poisonMeta.addCustomEffect(new PotionEffect(PotionEffectType.CONFUSION, 300, 10), true);
 
-        poisonMeta.setDisplayName("no Hit");
+        poisonMeta.setDisplayName("Übelkeits Wurftrank");
         poison.setItemMeta(poisonMeta);
 
         return poison;

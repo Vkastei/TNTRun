@@ -3,10 +3,7 @@ package eu.mineoase.tntrun;
 
 import eu.mineoase.tntrun.commands.KickAllCommand;
 import eu.mineoase.tntrun.items.*;
-import eu.mineoase.tntrun.listener.LobbyPhaseListener;
-import eu.mineoase.tntrun.listener.PlayerQuitListener;
-import eu.mineoase.tntrun.listener.SpectatorModeListener;
-import eu.mineoase.tntrun.listener.TNTRunListener;
+import eu.mineoase.tntrun.listener.*;
 import eu.mineoase.tntrun.shop.ShopGui;
 import eu.mineoase.tntrun.shop.SpawnShop;
 import eu.mineoase.tntrun.util.WorldReset;
@@ -20,10 +17,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public class TNTRun extends JavaPlugin {
 
@@ -34,7 +37,7 @@ public class TNTRun extends JavaPlugin {
     public static SpawnShop spawnShop;
     public static boolean lobbyStart = false;
     public static int i = 10;
-    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Player> players;
     public static int delay;
     public static int maxPlayers;
     public static int minPlayers;
@@ -45,15 +48,39 @@ public class TNTRun extends JavaPlugin {
     public static int joinX;
     public static int joinY;
     public static int joinZ;
+    private static final Logger log = Logger.getLogger("Minecraft");
+    private static Economy econ = null;
+    private static Permission perms = null;
+    private static Chat chat = null;
+
     @Override
     public void onEnable() {
+        /*
+        if (!setupEconomy() ) {
+            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        
+         */
+
         World world = Bukkit.getWorld("world");
         world.setAutoSave(true);
+        world.getWorldBorder().setSize(2000);
 
+
+        if (!setupEconomy() ) {
+            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        setupPermissions();
+        setupChat();
 
         placed = new ArrayList<>();
         broken = new HashMap<>();
         playerLocation = new ArrayList<>();
+        players = new ArrayList<>();
 
         minPlayers = getConfig().getInt("minPlayers");
         maxPlayers = getConfig().getInt("maxPlayers");
@@ -81,11 +108,14 @@ public class TNTRun extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
         Bukkit.getPluginManager().registerEvents(new ShopGui(), this);
         Bukkit.getPluginManager().registerEvents(new SpawnShop(), this);
+        Bukkit.getPluginManager().registerEvents(new PhaseMOTDListener(), this);
         LobbyPhaseListener.playerCount = 0;
 
         getCommand("kickall").setExecutor(new KickAllCommand());
 
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
+        LobbyPhaseListener.startLobby = true;
 
     }
 
@@ -96,9 +126,34 @@ public class TNTRun extends JavaPlugin {
                 v.remove();
             }
         }
+        log.info(String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
+
 
     }
 
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
+    private boolean setupChat() {
+        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat != null;
+    }
+
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -126,10 +181,23 @@ public class TNTRun extends JavaPlugin {
         }if(command.getName().equalsIgnoreCase("player")){
             p.sendMessage(String.valueOf(playerLocation));
             p.sendMessage(String.valueOf(players));
-        }if(command.getName().equalsIgnoreCase("countdown")){
-            LobbyPhaseListener.seconds = 1;
+
+        }if(sender.hasPermission("tntrun.countdown.null")){
+            if(command.getName().equalsIgnoreCase("countdown")){
+                LobbyPhaseListener.seconds = 1;
+            }
+        }if(command.getName().equalsIgnoreCase("vault")){
+            sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(p.getName()))));
+            EconomyResponse r = econ.depositPlayer(p, 1.05);
+            if(r.transactionSuccess()) {
+                sender.sendMessage(String.format("You were given %s and now have %s", econ.format(r.amount), econ.format(r.balance)));
+            } else {
+                sender.sendMessage(String.format("An error occured: %s", r.errorMessage));
+            }
+            return true;
         }
-        return true;
+
+        return false;
 
     }
     public static TNTRun getInstance() {
@@ -153,5 +221,17 @@ public class TNTRun extends JavaPlugin {
 
     public ArrayList<Location> getPlayerLocation() {
         return playerLocation;
+    }
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+
+    public static Permission getPermissions() {
+        return perms;
+    }
+
+    public static Chat getChat() {
+        return chat;
     }
 }

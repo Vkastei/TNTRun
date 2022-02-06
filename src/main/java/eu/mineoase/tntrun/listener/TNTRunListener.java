@@ -3,10 +3,7 @@ package eu.mineoase.tntrun.listener;
 import eu.mineoase.tntrun.util.PlayerConnector;
 import eu.mineoase.tntrun.util.PlayerLocation;
 import eu.mineoase.tntrun.util.WorldReset;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
@@ -39,6 +36,7 @@ public class TNTRunListener implements Listener {
     public void PlayerJoin(PlayerTeleportEvent e){
 
         if(LobbyPhaseListener.TNTBool){
+            Bukkit.getServer().getWorld("world").getWorldBorder().setSize(70);
 
 
             new BukkitRunnable()
@@ -65,27 +63,30 @@ public class TNTRunListener implements Listener {
             public void run() {
                 if(startRound){
                     for(Player p : new ArrayList<>(players)){
-                        isRunning = true;
 
-                        Location plloc = p.getLocation();
-                        Location plufloc = plloc.clone().add(0, -1, 0);
+                        if(p.getGameMode() != GameMode.SPECTATOR){
+                            isRunning = true;
 
-                        int y = plufloc.getBlockY() + 1;
-                        Block b1 = getBlockUnderPlayer(y - 1, plufloc);
-                        Block tnt = getBlockUnderPlayer(y - 2, plufloc);
+                            Location plloc = p.getLocation();
+                            Location plufloc = plloc.clone().add(0, -1, 0);
+
+                            int y = plufloc.getBlockY() + 1;
+                            Block b1 = getBlockUnderPlayer(y - 1, plufloc);
+                            Block tnt = getBlockUnderPlayer(y - 2, plufloc);
 
 
-                        if (b1 != null && b1.getType() == Material.GRAVEL) {
-                            broken.put(b1, Material.GRAVEL);
-                            broken.put(tnt, Material.TNT);
-                            destroyBlock(b1, tnt);
+                            if (b1 != null && b1.getType() == Material.GRAVEL) {
+                                broken.put(b1, Material.GRAVEL);
+                                broken.put(tnt, Material.TNT);
+                                destroyBlock(b1, tnt);
 
-                        }
-                        if (b1 != null && b1.getType() == Material.SAND) {
-                            broken.put(b1, Material.SAND);
-                            broken.put(tnt, Material.TNT);
-                            destroyBlock(b1, tnt);
+                            }
+                            if (b1 != null && b1.getType() == Material.SAND) {
+                                broken.put(b1, Material.SAND);
+                                broken.put(tnt, Material.TNT);
+                                destroyBlock(b1, tnt);
 
+                            }
                         }
                     }
                 }

@@ -2,8 +2,9 @@ name: Tntrun
 version: '${project.version}'
 main: eu.mineoase.tntrun.TNTRun
 api-version: 1.18
-website: http://mineoase.eu
+website: https://mineoase.eu
 softdepend: [Multiverse-Core]
+depend: [Vault, Essentials]
 commands:
   tntrun:
     description: test

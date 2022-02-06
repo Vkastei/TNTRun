@@ -31,8 +31,11 @@ public class SpawnShop implements Listener {
     @EventHandler
     public void ShopClick(PlayerInteractEntityEvent e){
         if(e.getRightClicked().getName().equals("Item Shop")){
+            new ShopGui();
+            new ShopGui().openInventory(e.getPlayer());
+            ShopGui sp = new ShopGui();
+            e.getPlayer().openInventory(sp.inv);
 
-            new ShopGui().openInventory();
             //e.setCancelled(true);
         }
     }
