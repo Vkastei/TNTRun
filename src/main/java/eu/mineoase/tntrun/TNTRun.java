@@ -7,10 +7,7 @@ import eu.mineoase.tntrun.listener.*;
 import eu.mineoase.tntrun.shop.ShopGui;
 import eu.mineoase.tntrun.shop.SpawnShop;
 import eu.mineoase.tntrun.util.WorldReset;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -60,8 +57,7 @@ public class TNTRun extends JavaPlugin {
         World world = Bukkit.getWorld("world");
         world.setAutoSave(true);
         world.getWorldBorder().setSize(2000);
-
-
+        world.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
 
 
         if (!setupEconomy() ) {
