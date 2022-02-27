@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -46,5 +47,14 @@ public class PermissionListener implements Listener {
     @EventHandler
     public void playerInteract(PlayerDropItemEvent e){
         e.setCancelled(true);
+    }
+    @EventHandler
+    public void playerPickUpItem(EntityPickupItemEvent e){
+
+        if(TNTRunListener.startRound){
+            e.setCancelled(true);
+        }else{
+            e.setCancelled(false);
+        }
     }
 }

@@ -58,7 +58,7 @@ public class TNTRun extends JavaPlugin {
         world.setAutoSave(true);
         world.getWorldBorder().setSize(2000);
         world.setGameRule(GameRule.SPECTATORS_GENERATE_CHUNKS, false);
-
+        LobbyPhaseListener.playerCount = 0;
 
         if (!setupEconomy() ) {
             log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));

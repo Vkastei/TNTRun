@@ -3,6 +3,7 @@ package eu.mineoase.tntrun.listener;
 import eu.mineoase.tntrun.TNTRun;
 import eu.mineoase.tntrun.shop.ShopGui;
 import eu.mineoase.tntrun.shop.SpawnShop;
+import eu.mineoase.tntrun.util.PlayerConnector;
 import eu.mineoase.tntrun.util.PlayerLocation;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -50,10 +51,10 @@ public class LobbyPhaseListener implements Listener {
         Location lobby = new Location(Bukkit.getWorld(TNTRun.gameWorld), joinX, joinY, joinZ);
         p.teleport(lobby);
         SpectatorModeListener.start = true;
-        playerCount++;
 
         if(!TNTBool){
             Bukkit.broadcastMessage(ChatColor.GREEN + e.getPlayer().getName() + ChatColor.WHITE + " ist der Lobby beigetreten" + ChatColor.GREEN + "(" + playerCount + "/" + maxPlayer + ")");
+            playerCount++;
 
         }
         if(TNTBool){
@@ -71,7 +72,7 @@ public class LobbyPhaseListener implements Listener {
                             for(Player p : players){
                                 p.setLevel(seconds);
                             }
-                        }if(seconds == 0 && playerCount >= minPlayer){
+                        }if(seconds == 10 && playerCount >= minPlayer){
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
@@ -79,6 +80,7 @@ public class LobbyPhaseListener implements Listener {
                                         motdBool = true;
                                         Bukkit.broadcastMessage("Runde beginnt in: " + ChatColor.GREEN + i);
                                         i--;
+                                        seconds--;
                                     }else{
                                         this.cancel();
                                         Bukkit.broadcastMessage("Die Runde beginnt jetzt...");
@@ -88,7 +90,16 @@ public class LobbyPhaseListener implements Listener {
                                     }
                                 }
                             }.runTaskTimer(main, 0, 20);
-                        }if(playerCount == maxPlayer){
+                        }if(seconds == 0 && playerCount < minPlayer){
+                            Bukkit.broadcastMessage("Es sind zu wenige Personen in der Lobby");
+                            Bukkit.broadcastMessage("Teleport zu " + ChatColor.GREEN + "HUB");
+                            for(Player p : Bukkit.getOnlinePlayers()){
+                                PlayerConnector.connect(p, "hub");
+                            }
+
+
+                        }
+                        if(playerCount == maxPlayer){
                             start = false;
                             new BukkitRunnable() {
                                 @Override

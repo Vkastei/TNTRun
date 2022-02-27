@@ -56,7 +56,7 @@ public class C4Item implements Listener {
     @EventHandler
     public void leverClick(PlayerInteractEvent e){
         Player p = e.getPlayer();
-        /*
+
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR){
             if(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("Fernzünder")){
                 if(c4Bool){
@@ -70,9 +70,9 @@ public class C4Item implements Listener {
                     p.sendMessage("Du hast noch kein C4 platziert");
                 }
             }
-        }\
+        }
 
-         */
+
     }
 
     @EventHandler

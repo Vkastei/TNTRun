@@ -97,7 +97,6 @@ public class SpectatorModeListener implements Listener {
                                                 }
                                                 placed = new ArrayList<Block>();
                                                 broken = new HashMap<Block, Material>();
-                                                Bukkit.broadcastMessage("reset");
                                                 Bukkit.getWorld("world").save();
 
                                                 Bukkit.reload();
